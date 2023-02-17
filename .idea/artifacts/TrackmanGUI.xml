@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="TrackmanGUI">
+    <output-path>$USER_HOME$/Desktop</output-path>
+    <root id="archive" name="TrackmanGUI.jar">
+      <element id="module-output" name="TrackmanGUI" />
+    </root>
+  </artifact>
+</component>
