@@ -26,7 +26,7 @@ public class Main {
         if(val == JFileChooser.OPEN_DIALOG) {
             File[] files = jfc.getSelectedFiles();
             for(File file : files) {
-                String pathName = jfc.getSelectedFile().getAbsolutePath();
+                String pathName = file.getAbsolutePath();
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     BufferedReader br = new BufferedReader(new InputStreamReader(fis));
