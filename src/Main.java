@@ -55,7 +55,8 @@ public class Main {
                 break;
             }
         }
-        data = new String[]{data[21].equals("Undefined") ? data[22] : data[21], data[23], data[24], data[25], data[30], data[33], data[38], data[36], data[40], data[41]};
+        data = new String[]{data[21].equals("Undefined") ? data[22] : data[21], data[23], data[24], data[25], data[30],
+                data[33], data[38], data[36], data[40], data[41]};
         String pitchType = data[0];
         boolean isStrike = data[1].startsWith("Strike") || data[1].equals("FoulBall") || data[1].equals("InPlay");
         boolean isStrikeout = data[2].equals("Strikeout");
