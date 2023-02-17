@@ -18,7 +18,7 @@ public class Main {
 
             @Override
             public String getDescription() {
-                return null;
+                return ".csv or directory";
             }
         });
         jfc.setMultiSelectionEnabled(true);
