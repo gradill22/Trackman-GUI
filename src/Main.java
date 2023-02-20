@@ -33,7 +33,7 @@ public class Main {
                     String line = br.readLine();
                     int count = 0;
                     while(line != null) {
-                        if(count++ > 0) parsePitch(line);
+                        if(count++ > 0 && !line.isBlank()) parsePitch(line);
                         line = br.readLine();
                     }
                     exportData(pathName.substring(0, pathName.length() - file.getName().length()), file.getName());
