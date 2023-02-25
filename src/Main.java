@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         JFileChooser jfc = new JFileChooser();
-        jfc.setDialogTitle("Open Trackman .csv file");
+        jfc.setDialogTitle("Open raw Trackman .csv file(s)");
         jfc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -32,12 +32,12 @@ public class Main {
                     BufferedReader br = new BufferedReader(new InputStreamReader(fis));
                     String line = br.readLine();
                     int count = 0;
-                    while(line != null) {
-                        if(count++ > 0 && !line.isBlank()) parsePitch(line);
+                    while (line != null) {
+                        if (count++ > 0 && !line.isBlank()) parsePitch(line);
                         line = br.readLine();
                     }
                     exportData(pathName.substring(0, pathName.length() - file.getName().length()), file.getName());
-                } catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(1);
                 }
