@@ -1,15 +1,15 @@
+import java.io.*;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
 
 public class Main {
-    private static final ArrayList<Pitcher> pitchers = new ArrayList<>();
+    private static final ArrayList<Team> teams = new ArrayList<>();
 
     public static void main(String[] args) {
         JFileChooser jfc = new JFileChooser();
-        jfc.setDialogTitle("Open raw Trackman .csv file(s)");
+        jfc.setDialogTitle("Raw Trackman .csv File(s)");
         jfc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -49,11 +49,18 @@ public class Main {
     private static void parsePitch(String line) {
         String[] data = line.split(",");
         Pitcher p = new Pitcher(data[9], data[6].substring(1, data[6].length() - 1) + " " + data[5].substring(1));
-        for(Pitcher pitcher : pitchers) {
-            if(p.equals(pitcher)) {
-                p = pitcher;
+        boolean teamFound = false;
+        for(Team t : teams) {
+            if(p.getTeamName().equals(t.getTeamName())) {
+                teamFound = true;
+                p = t.addPitcher(p);
                 break;
             }
+        }
+        if(!teamFound) {
+            Team t = new Team(p.getTeamName());
+            t.addPitcher(p);
+            teams.add(t);
         }
         data = new String[]{data[21].equals("Undefined") ? data[22] : data[21], data[23], data[24], data[25], data[30],
                 data[33], data[38], data[36], data[40], data[41]};
@@ -69,24 +76,32 @@ public class Main {
         float vertBreak = data[8].isEmpty() ? 0 : Float.parseFloat(data[8]);
         float horzBreak = data[9].isEmpty() ? 0 : Float.parseFloat(data[9]);
         p.addPitch(new Pitch(pitchType, isStrike, isStrikeout, isWalk, contact, relSpeed, spinRate, extension, relHeight, vertBreak, horzBreak));
-        if(!pitchers.contains(p)) {
-            pitchers.add(p);
-        }
     }
 
     private static void exportData(String pathName, String fileName) {
         String year = fileName.substring(0, 4);
         String month = fileName.substring(4, 6);
         String day = fileName.substring(6, 8);
-        for(Pitcher p : pitchers) {
-            File folder = new File(String.format("%s\\%s Pitch Report %s-%s-%s", pathName, p.getTeamName(), month, day, year));
+        for(Team t : teams) {
+            File folder = new File(String.format("%s\\%s Pitch Report %s-%s-%s", pathName, t.getTeamName(), month, day, year));
             if(folder.mkdir()) System.out.println("New directory: " + folder.getAbsolutePath());
-            String csv = buildCSV(p);
+            for(Pitcher p : t.getPitchers()) {
+                try {
+                    File file = new File("%s\\%s-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), p.getName(), month, day, year));
+                    if(file.createNewFile()) System.out.println("New file created: " + file.getName());
+                    FileWriter outputFile = new FileWriter(file);
+                    outputFile.write(p.buildCSV());
+                    outputFile.close();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
             try {
-                File file = new File("%s\\%s-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), p.getName(), month, day, year));
+                File file = new File("%s\\%s TOTALS-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), t.getTeamName(), month, day, year));
                 if(file.createNewFile()) System.out.println("New file created: " + file.getName());
                 FileWriter outputFile = new FileWriter(file);
-                outputFile.write(csv);
+                outputFile.write(t.buildCSV());
                 outputFile.close();
             } catch(Exception e) {
                 e.printStackTrace();
@@ -99,46 +114,5 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    private static String buildCSV(Pitcher p) {
-        String[] pitchNames = p.pitchNames();
-        StringBuilder csv = new StringBuilder();
-        csv.append(String.format("Pitches,Total (%d),Strikes (%d),Balls (%d),Strikeouts (%d),Walks (%d)",
-                p.pitchCount(), p.strikes(), p.balls(), p.strikeouts(), p.walks())).append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%d,%d,%d,%d,%d", pn, p.pitchCount(pn), p.strikes(pn), p.balls(pn),
-                    p.strikeouts(pn), p.walks(pn))).append("\n");
-        }
-        csv.append("\n").append(String.format("Contact,Groundballs (%d),Line drives (%d),Flyballs (%d),Popups (%d)",
-                p.groundBalls(), p.lineDrives(), p.flyBalls(), p.popUps())).append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%d,%d,%d,%d", pn, p.groundBalls(pn), p.lineDrives(pn), p.flyBalls(pn), p.popUps(pn))).append("\n");
-        }
-        csv.append("\n").append("Velocity,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.velocity(pn, 0), p.velocity(pn, 1), p.velocity(pn, 2))).append("\n");
-        }
-        csv.append("\n").append("Spin Rate,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.spinRate(pn, 0), p.spinRate(pn, 1), p.spinRate(pn, 2))).append("\n");
-        }
-        csv.append("\n").append("Vertical Break,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.vertBreak(pn, 0), p.vertBreak(pn, 1), p.vertBreak(pn, 2))).append("\n");
-        }
-        csv.append("\n").append("Horizontal Break,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.horzBreak(pn, 0), p.horzBreak(pn, 1), p.horzBreak(pn, 2))).append("\n");
-        }
-        csv.append("\n").append("Extension,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.extension(pn, 0), p.extension(pn, 1), p.extension(pn, 2))).append("\n");
-        }
-        csv.append("\n").append("Release Height,Min,Avg,Max").append("\n");
-        for(String pn : pitchNames) {
-            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, p.relHeight(pn, 0), p.relHeight(pn, 1), p.relHeight(pn, 2))).append("\n");
-        }
-        return csv.toString();
     }
 }

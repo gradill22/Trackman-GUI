@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Pitcher {
     private final String name, teamName;
@@ -16,18 +17,16 @@ public class Pitcher {
         pitches.add(p);
     }
 
+    public ArrayList<Pitch> getPitches() {
+        return pitches;
+    }
+
     public String[] pitchNames() {
-        ArrayList<String> pitchNames = new ArrayList<>();
+        HashSet<String> pitchNames = new HashSet<>();
         for(Pitch p : pitches) {
-            if(!pitchNames.contains(p.getPitch())) {
-                pitchNames.add(p.getPitch());
-            }
+            pitchNames.add(p.getPitch());
         }
-        String[] ans = new String[pitchNames.size()];
-        for(int i = 0; i < ans.length; i++) {
-            ans[i] = pitchNames.get(i);
-        }
-        return ans;
+        return pitchNames.toArray(new String[0]);
     }
 
     public String getName() {
@@ -38,44 +37,37 @@ public class Pitcher {
         return teamName;
     }
 
-    public int strikes(String pitchName) {
+    public int strikes(String... pitchName) {
         int count = 0;
         for(Pitch p : pitches) {
-            count += p.getPitch().equals(pitchName) && p.isStrike() ? 1 : 0;
+            if(pitchName.length > 0) {
+                count += p.getPitch().equals(pitchName[0]) && p.isStrike() ? 1 : 0;
+            } else {
+                count += p.isStrike() ? 1 : 0;
+            }
         }
         return count;
     }
 
-    public int strikes() {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.isStrike() ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int balls(String pitchName) {
+    public int balls(String... pitchName) {
         int count = 0;
         for(Pitch p : pitches) {
-            count += p.getPitch().equals(pitchName) && !p.isStrike() ? 1 : 0;
+            if(pitchName.length > 0) {
+                count += p.getPitch().equals(pitchName[0]) && !p.isStrike() ? 1 : 0;
+            } else {
+                count += p.isStrike() ? 0 : 1;
+            }
         }
         return count;
     }
 
-    public int balls() {
-        return pitchCount() - strikes();
-    }
-
-    public int pitchCount(String pitchName) {
+    public int pitchCount(String... pitchName) {
+        if(pitchName.length == 0) return pitches.size();
         int count = 0;
         for(Pitch p : pitches) {
-            count += p.getPitch().equals(pitchName) ? 1 : 0;
+            count += p.getPitch().equals(pitchName[0]) ? 1 : 0;
         }
         return count;
-    }
-
-    public int pitchCount() {
-        return pitches.size();
     }
 
     public float velocity(String pitchName, int mode) {
@@ -222,102 +214,120 @@ public class Pitcher {
         return sum / count;
     }
 
-    public int strikeouts(String pitchName) {
+    public int strikeouts(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.isStrikeout() ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.isStrikeout() ? 1 : 0;
+            } else {
+                sum += p.isStrikeout() ? 1 : 0;
+            }
         }
         return sum;
     }
 
-    public int strikeouts() {
+    public int walks(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.isStrikeout() ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.isWalk() ? 1 : 0;
+            } else {
+                sum += p.isWalk() ? 1 : 0;
+            }
         }
         return sum;
     }
 
-    public int walks(String pitchName) {
+    public int groundBalls(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.isWalk() ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.getContact().equals("GroundBall") ? 1 : 0;
+            } else {
+                sum += p.getContact().equals("GroundBall") ? 1 : 0;
+            }
         }
         return sum;
     }
 
-    public int walks() {
+    public int lineDrives(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.isWalk() ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.getContact().equals("LineDrive") ? 1 : 0;
+            } else {
+                sum += p.getContact().equals("LineDrive") ? 1 : 0;
+            }
         }
         return sum;
     }
 
-    public int groundBalls(String pitchName) {
+    public int flyBalls(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.getContact().equals("GroundBall") ? 1 : 0;
-        }
-        return sum;
-    }
-    public int groundBalls() {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getContact().equals("GroundBall") ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int lineDrives(String pitchName) {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.getContact().equals("LineDrive") ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.getContact().equals("FlyBall") ? 1 : 0;
+            } else {
+                sum += p.getContact().equals("FlyBall") ? 1 : 0;
+            }
         }
         return sum;
     }
 
-    public int lineDrives() {
+    public int popUps(String... pitchName) {
         int sum = 0;
         for(Pitch p : pitches) {
-            sum += p.getContact().equals("LineDrive") ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int flyBalls(String pitchName) {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.getContact().equals("FlyBall") ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int flyBalls() {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getContact().equals("FlyBall") ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int popUps(String pitchName) {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getPitch().equals(pitchName) && p.getContact().equals("Popup") ? 1 : 0;
-        }
-        return sum;
-    }
-
-    public int popUps() {
-        int sum = 0;
-        for(Pitch p : pitches) {
-            sum += p.getContact().equals("Popup") ? 1 : 0;
+            if(pitchName.length > 0) {
+                sum += p.getPitch().equals(pitchName[0]) && p.getContact().equals("Popup") ? 1 : 0;
+            } else {
+                sum += p.getContact().equals("Popup") ? 1 : 0;
+            }
         }
         return sum;
     }
 
     public boolean equals(Pitcher pitcher) {
         return name.equals(pitcher.getName()) && teamName.equals(pitcher.getTeamName());
+    }
+
+    public String buildCSV() {
+        String[] pitchNames = pitchNames();
+        StringBuilder csv = new StringBuilder();
+        csv.append(String.format("Pitches,Total (%d),Strikes (%d),Balls (%d),Strikeouts (%d),Walks (%d)",
+                pitchCount(), strikes(), balls(), strikeouts(), walks())).append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%d,%d,%d,%d,%d", pn, pitchCount(pn), strikes(pn), balls(pn),
+                    strikeouts(pn), walks(pn))).append("\n");
+        }
+        csv.append("\n").append(String.format("Contact,Groundballs (%d),Line drives (%d),Flyballs (%d),Popups (%d)",
+                groundBalls(), lineDrives(), flyBalls(), popUps())).append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%d,%d,%d,%d", pn, groundBalls(pn), lineDrives(pn), flyBalls(pn), popUps(pn))).append("\n");
+        }
+        csv.append("\n").append("Velocity,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, velocity(pn, 0), velocity(pn, 1), velocity(pn, 2))).append("\n");
+        }
+        csv.append("\n").append("Spin Rate,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, spinRate(pn, 0), spinRate(pn, 1), spinRate(pn, 2))).append("\n");
+        }
+        csv.append("\n").append("Vertical Break,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, vertBreak(pn, 0), vertBreak(pn, 1), vertBreak(pn, 2))).append("\n");
+        }
+        csv.append("\n").append("Horizontal Break,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, horzBreak(pn, 0), horzBreak(pn, 1), horzBreak(pn, 2))).append("\n");
+        }
+        csv.append("\n").append("Extension,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, extension(pn, 0), extension(pn, 1), extension(pn, 2))).append("\n");
+        }
+        csv.append("\n").append("Release Height,Min,Avg,Max").append("\n");
+        for(String pn : pitchNames) {
+            csv.append(String.format("%s,%.2f,%.2f,%.2f", pn, relHeight(pn, 0), relHeight(pn, 1), relHeight(pn, 2))).append("\n");
+        }
+        return csv.toString();
     }
 }
