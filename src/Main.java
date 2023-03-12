@@ -82,35 +82,27 @@ public class Main {
         String year = fileName.substring(0, 4);
         String month = fileName.substring(4, 6);
         String day = fileName.substring(6, 8);
-        for(Team t : teams) {
-            File folder = new File(String.format("%s\\%s Pitch Report %s-%s-%s", pathName, t.getTeamName(), month, day, year));
-            if(folder.mkdir()) System.out.println("New directory: " + folder.getAbsolutePath());
-            for(Pitcher p : t.getPitchers()) {
-                try {
-                    File file = new File("%s\\%s-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), p.getName(), month, day, year));
-                    if(file.createNewFile()) System.out.println("New file created: " + file.getName());
-                    FileWriter outputFile = new FileWriter(file);
+        try {
+            for(Team t : teams) {
+                File folder = new File(String.format("%s\\%s Pitch Report %s-%s-%s", pathName, t.getTeamName(), month, day, year));
+                if(folder.mkdir()) System.out.println("New directory: " + folder.getAbsolutePath());
+                FileWriter outputFile;
+                File file;
+                for(Pitcher p : t.getPitchers()) {
+                    file = new File("%s\\%s-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), p.getName(), month, day, year));
+                    if (file.createNewFile()) System.out.println("New file created: " + file.getName());
+                    outputFile = new FileWriter(file);
                     outputFile.write(p.buildCSV());
                     outputFile.close();
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    System.exit(1);
                 }
-            }
-            try {
-                File file = new File("%s\\%s TOTALS-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), t.getTeamName(), month, day, year));
+                file = new File("%s\\%s TOTALS-%s-%s-%s.csv".formatted(folder.getAbsolutePath(), t.getTeamName(), month, day, year));
                 if(file.createNewFile()) System.out.println("New file created: " + file.getName());
-                FileWriter outputFile = new FileWriter(file);
+                outputFile = new FileWriter(file);
                 outputFile.write(t.buildCSV());
                 outputFile.close();
-            } catch(Exception e) {
-                e.printStackTrace();
-                System.exit(1);
             }
-        }
-        try {
             Desktop.getDesktop().open(new File(pathName));
-        } catch (IOException e) {
+        } catch(Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
