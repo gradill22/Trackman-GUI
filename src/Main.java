@@ -13,7 +13,7 @@ public class Main {
         jfc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.getName().endsWith(".csv") || f.isDirectory();
+                return f.isDirectory() || f.getName().endsWith(".csv");
             }
 
             @Override
